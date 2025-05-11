@@ -1,0 +1,46 @@
+{
+	"name": "taglib-d-examples",
+	"description": "taglib-d example project",
+	"copyright": "Copyright © 2025, Element Green <element@kymorphia.com>",
+	"license": "MIT",
+	"authors": [
+		"Element Green <element@kymorphia.com>"
+	],
+	"dependencies": {
+		":basic_props": "*",
+		":complex_props": "*",
+		":extract_picture": "*",
+		":named_props": "*"
+	},
+	"targetType": "none",
+	"subPackages": [
+		{
+			"name": "basic_props",
+			"targetType": "executable",
+			"targetName": "basic_props",
+			"mainSourceFile": "basic_props.d",
+			"dependencies": {"taglib-d": {"path": ".."}}
+		},
+		{
+			"name": "named_props",
+			"targetType": "executable",
+			"targetName": "named_props",
+			"mainSourceFile": "named_props.d",
+			"dependencies": {"taglib-d": {"path": ".."}}
+		},
+		{
+			"name": "complex_props",
+			"targetType": "executable",
+			"targetName": "complex_props",
+			"mainSourceFile": "complex_props.d",
+			"dependencies": {"taglib-d": {"path": ".."}}
+		},
+		{
+			"name": "extract_picture",
+			"targetType": "executable",
+			"targetName": "extract_picture",
+			"mainSourceFile": "extract_picture.d",
+			"dependencies": {"taglib-d": {"path": ".."}}
+		}
+	]
+}

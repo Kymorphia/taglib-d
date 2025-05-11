@@ -1,0 +1,11 @@
+basic_props
+complex_props
+extract_picture
+named_props
+dub.selections.json
+.dub
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst

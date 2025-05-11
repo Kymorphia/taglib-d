@@ -1,0 +1,16 @@
+.dub
+docs/api
+docs/skeleton.html
+dub.selections.json
+libtaglib-d.a
+taglib-d.so
+taglib-d.dylib
+taglib-d.dll
+taglib-d.a
+taglib-d.lib
+taglib-d-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
