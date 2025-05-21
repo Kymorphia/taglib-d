@@ -47,11 +47,7 @@ class TagFile
 
   ~this()
   {
-    if (_ioStream)
-      taglib_iostream_free(_ioStream);
-
-    if (_file)
-      taglib_file_free(_file);
+    close;
   }
 
   /**
@@ -60,7 +56,25 @@ class TagFile
    */
   bool isValid()
   {
-    return taglib_file_is_valid(_file);
+    return _file && taglib_file_is_valid(_file);
+  }
+
+  /**
+   * Close the tag file and free the associated resources. No other methods should be called after this.
+   */
+  void close()
+  {
+    if (_ioStream)
+    {
+      taglib_iostream_free(_ioStream);
+      _ioStream = null;
+    }
+
+    if (_file)
+    {
+      taglib_file_free(_file);
+      _file = null;
+    }
   }
 
   /**
@@ -69,6 +83,9 @@ class TagFile
    */
   @property string title()
   {
+    if (!tag)
+      return null;
+
     auto cstr = taglib_tag_title(tag);
     scope(exit) taglib_free(cstr);
     return cstr.fromStringz.idup;
@@ -80,6 +97,9 @@ class TagFile
    */
   @property string artist()
   {
+    if (!tag)
+      return null;
+
     auto cstr = taglib_tag_artist(tag);
     scope(exit) taglib_free(cstr);
     return cstr.fromStringz.idup;
@@ -91,6 +111,9 @@ class TagFile
    */
   @property string album()
   {
+    if (!tag)
+      return null;
+
     auto cstr = taglib_tag_album(tag);
     scope(exit) taglib_free(cstr);
     return cstr.fromStringz.idup;
@@ -102,6 +125,9 @@ class TagFile
    */
   @property string comment()
   {
+    if (!tag)
+      return null;
+
     auto cstr = taglib_tag_comment(tag);
     scope(exit) taglib_free(cstr);
     return cstr.fromStringz.idup;
@@ -113,6 +139,9 @@ class TagFile
    */
   @property string genre()
   {
+    if (!tag)
+      return null;
+
     auto cstr = taglib_tag_genre(tag);
     scope(exit) taglib_free(cstr);
     return cstr.fromStringz.idup;
@@ -124,7 +153,7 @@ class TagFile
    */
   @property uint year()
   {
-    return taglib_tag_year(tag);
+    return tag ? taglib_tag_year(tag) : 0;
   }
 
   /**
@@ -133,7 +162,7 @@ class TagFile
    */
   @property uint track()
   {
-    return taglib_tag_track(tag);
+    return tag ? taglib_tag_track(tag) : 0;
   }
 
   /**
@@ -141,7 +170,7 @@ class TagFile
    */
   @property int length()
   {
-    return taglib_audioproperties_length(audioProps);
+    return audioProps ? taglib_audioproperties_length(audioProps) : 0;
   }
 
   /**
@@ -149,7 +178,7 @@ class TagFile
    */
   @property int bitrate()
   {
-    return taglib_audioproperties_bitrate(audioProps);
+    return audioProps ? taglib_audioproperties_bitrate(audioProps) : 0;
   }
 
   /**
@@ -157,7 +186,7 @@ class TagFile
    */
   @property int samplerate()
   {
-    return taglib_audioproperties_samplerate(audioProps);
+    return audioProps ? taglib_audioproperties_samplerate(audioProps) : 0;
   }
 
   /**
@@ -165,7 +194,7 @@ class TagFile
    */
   @property int channels()
   {
-    return taglib_audioproperties_channels(audioProps);
+    return audioProps ? taglib_audioproperties_channels(audioProps) : 0;
   }
 
   /**
@@ -190,6 +219,9 @@ class TagFile
    */
   string[] getProp(string name)
   {
+    if (!_file)
+      return [];
+
     auto cVals = taglib_property_get(_file, name.toStringz);
     string[] vals;
 
@@ -210,6 +242,9 @@ class TagFile
    */
   string[] getPropKeys()
   {
+    if (!_file)
+      return [];
+
     auto cKeys = taglib_property_keys(_file);
     string[] keys;
 
@@ -246,8 +281,12 @@ class TagFile
    */
   TagVariant[string] getComplexProp(string name)
   {
-    TagLib_Complex_Property_Attribute*** maps = taglib_complex_property_get(_file, name.toStringz);
     TagVariant[string] propValues;
+
+    if (!_file)
+      return propValues;
+
+    TagLib_Complex_Property_Attribute*** maps = taglib_complex_property_get(_file, name.toStringz);
 
     if (!maps)
       return propValues;
@@ -275,6 +314,9 @@ class TagFile
    */
   @property string[] getComplexPropKeys()
   {
+    if (!_file)
+      return [];
+
     auto cKeys = taglib_complex_property_keys(_file);
     string[] keys;
 
@@ -296,7 +338,8 @@ class TagFile
    */
   @property void title(string val)
   {
-    taglib_tag_set_title(tag, val.toStringz);
+    if (tag)
+      taglib_tag_set_title(tag, val.toStringz);
   }
 
   /**
@@ -306,7 +349,8 @@ class TagFile
    */
   @property void artist(string val)
   {
-    taglib_tag_set_artist(tag, val.toStringz);
+    if (tag)
+      taglib_tag_set_artist(tag, val.toStringz);
   }
 
   /**
@@ -316,7 +360,8 @@ class TagFile
    */
   @property void album(string val)
   {
-    taglib_tag_set_album(tag, val.toStringz);
+    if (tag)
+      taglib_tag_set_album(tag, val.toStringz);
   }
 
   /**
@@ -326,7 +371,8 @@ class TagFile
    */
   @property void comment(string val)
   {
-    taglib_tag_set_comment(tag, val.toStringz);
+    if (tag)
+      taglib_tag_set_comment(tag, val.toStringz);
   }
 
   /**
@@ -336,7 +382,8 @@ class TagFile
    */
   @property void genre(string val)
   {
-    taglib_tag_set_genre(tag, val.toStringz);
+    if (tag)
+      taglib_tag_set_genre(tag, val.toStringz);
   }
 
   /**
@@ -346,7 +393,8 @@ class TagFile
    */
   @property void year(uint val)
   {
-    taglib_tag_set_year(tag, val);
+    if (tag)
+      taglib_tag_set_year(tag, val);
   }
 
   /**
@@ -356,7 +404,8 @@ class TagFile
    */
   @property void track(uint val)
   {
-    taglib_tag_set_track(tag, val);
+    if (tag)
+      taglib_tag_set_track(tag, val);
   }
 
   /**
@@ -367,7 +416,8 @@ class TagFile
    */
   void setProp(string name, string value)
   {
-    taglib_property_set(_file, name.toStringz, value.toStringz);
+    if (_file)
+      taglib_property_set(_file, name.toStringz, value.toStringz);
   }
 
   /**
@@ -378,7 +428,8 @@ class TagFile
    */
   void appendProp(string name, string value)
   {
-    taglib_property_set_append(_file, name.toStringz, value.toStringz);
+    if (_file)
+      taglib_property_set_append(_file, name.toStringz, value.toStringz);
   }
 
   /**
@@ -390,6 +441,9 @@ class TagFile
    */
   bool setComplexProp(string name, TagVariant[string] values)
   {
+    if (!_file)
+      return false;
+
     if (values.length == 0)
     {
       taglib_complex_property_set(_file, name.toStringz, null);
@@ -419,6 +473,9 @@ class TagFile
    */
   bool appendComplexProp(string name, TagVariant[string] values)
   {
+    if (!_file)
+      return false;
+
     if (values.length == 0)
     {
       taglib_complex_property_set_append(_file, name.toStringz, null);
@@ -445,7 +502,7 @@ class TagFile
    */
   bool save()
   {
-    return taglib_file_save(_file);
+    return _file ? taglib_file_save(_file) : false;
   }
 
   /**
@@ -453,11 +510,11 @@ class TagFile
    *
    * NOTE: Most users will not need to use this, since there are other more convenient individual properties.
    *
-   * Returns: The Tag
+   * Returns: The Tag or null if tag file not open
    */
   @property TagLib_Tag* tag()
   {
-    if (!_tag)
+    if (!_tag && _file)
       _tag = taglib_file_tag(_file); // Gets freed when _file does
 
     return _tag;
@@ -468,11 +525,11 @@ class TagFile
    *
    * NOTE: Most users will not need to use this, since there are other more convenient individual properties.
    *
-   * Returns: Audio properties structure pointer
+   * Returns: Audio properties structure pointer or null if tag file not open
    */
   @property const(TagLib_AudioProperties)* audioProps()
   {
-    if (!_audioProps)
+    if (!_audioProps && _file)
       _audioProps = taglib_file_audioproperties(_file); // Gets freed when _file does
 
     return _audioProps;
